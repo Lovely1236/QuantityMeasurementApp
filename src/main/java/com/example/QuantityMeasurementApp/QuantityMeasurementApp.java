@@ -1,52 +1,80 @@
 package com.example.QuantityMeasurementApp;
 
-/**
- * Hello world!
- */
 public class QuantityMeasurementApp {
+// enum is used for units to follow the dry principal
+	
+    public enum LengthUnit {
 
-    // Inner immutable class
-    public static class Feet {
-        private final double value;
+        FEET(1.0),
+        INCH(1.0 / 12.0);   // 1 inch = 1/12 feet
 
-        public Feet(double value) {
-            this.value = value;
+        private final double toFeetFactor;
+
+        LengthUnit(double toFeetFactor) {
+            this.toFeetFactor = toFeetFactor;
         }
 
-        public double getValue() {
-            return value;
+        public double toFeet(double value) {
+            return value * toFeetFactor;
+        }
+    }
+
+
+    // ---------- GENERIC QUANTITY LENGTH CLASS ----------
+    public static class QuantityLength {
+
+        private final double value;
+        private final LengthUnit unit;
+
+        public QuantityLength(double value, LengthUnit unit) {
+
+            if (unit == null)
+                throw new IllegalArgumentException("Unit cannot be null");
+
+            this.value = value;
+            this.unit = unit;
+        }
+
+        private double toBaseFeet() {
+            return unit.toFeet(value);
         }
 
         @Override
         public boolean equals(Object obj) {
 
-            // Same reference → true
-            if (this == obj)
-                return true;
+            if (this == obj) return true;
 
-            // Null or different type → false
             if (obj == null || getClass() != obj.getClass())
                 return false;
 
-            // Safe cast
-            Feet other = (Feet) obj;
+            QuantityLength other = (QuantityLength) obj;
 
-            // Compare double safely
-            return Double.compare(this.value, other.value) == 0;
+            return Double.compare(this.toBaseFeet(), other.toBaseFeet()) == 0;
         }
 
         @Override
         public int hashCode() {
-            return Double.hashCode(value);
+            return Double.hashCode(toBaseFeet());
         }
     }
 
-    // Main method to test manually
+
+    // ---------- MAIN METHOD ----------
     public static void main(String[] args) {
 
-        Feet f1 = new Feet(1.0);
-        Feet f2 = new Feet(1.0);
+        QuantityLength q1 =
+                new QuantityLength(1.0, LengthUnit.FEET);
 
-        System.out.println("Equal (" + f1.equals(f2) + ")");
+        QuantityLength q2 =
+                new QuantityLength(12.0, LengthUnit.INCH);
+
+        QuantityLength q3 =
+                new QuantityLength(1.0, LengthUnit.INCH);
+
+        QuantityLength q4 =
+                new QuantityLength(1.0, LengthUnit.INCH);
+
+        System.out.println("Equal (" + q1.equals(q2) + ")");
+        System.out.println("Equal (" + q3.equals(q4) + ")");
     }
 }
