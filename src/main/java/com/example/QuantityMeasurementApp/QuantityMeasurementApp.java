@@ -1,112 +1,99 @@
 package com.example.QuantityMeasurementApp;
-public class QuantityMeasurementApp{ //enum
-    public enum LengthUnit{
-        FEET(1.0),
-        INCH(1.0 / 12.0),
-        YARDS(3.0),
-        CENTIMETERS(0.393701 / 12.0);
-        private final double toFeetFactor;
-        LengthUnit(double toFeetFactor){
-            this.toFeetFactor = toFeetFactor;
-        }
-        double toFeet(double value){
-            return value * toFeetFactor;
-        }
-        double fromFeet(double feetValue){
-            return feetValue / toFeetFactor;
-        }
-    }
-    public static class QuantityLength{ // Value Object
+public class QuantityMeasurementApp{
+    //VALUE OBJECT
+    public static class QuantityLength{
         private final double value;
         private final LengthUnit unit;
         public QuantityLength(double value, LengthUnit unit){
             if (!Double.isFinite(value))
                 throw new IllegalArgumentException("Value must be finite");
-            if (unit == null)
+            if (unit==null)
                 throw new IllegalArgumentException("Unit cannot be null");
-            this.value = value;
-            this.unit = unit;
+            this.value=value;
+            this.unit=unit;
         }
-        private double toFeet(){
-            return unit.toFeet(value);
+        private double toBase(){
+            return unit.convertToBaseUnit(value);
         }
-        public QuantityLength convertTo(LengthUnit target){ // UC5 conversion
-            if (target == null)
+        //CONVERSION
+        public QuantityLength convertTo(LengthUnit target){
+            if (target==null)
                 throw new IllegalArgumentException("Target unit cannot be null");
-            double feet = toFeet();
-            double converted = target.fromFeet(feet);
-            
+            double base=toBase();
+            double converted=target.convertFromBaseUnit(base);
             return new QuantityLength(converted, target);
         }
+
         public static double convert(double value,
                                      LengthUnit source,
-                                     LengthUnit target){
-            if (!Double.isFinite(value))
+                                     LengthUnit target) {
+
+            if(!Double.isFinite(value))
                 throw new IllegalArgumentException("Value must be finite");
-            if (source==null || target==null)
+
+            if(source==null || target==null)
                 throw new IllegalArgumentException("Units cannot be null");
 
-            double feet= source.toFeet(value);
-            return target.fromFeet(feet);
-        } //  UC6 ADDITION (result in first operand unit)
-        public QuantityLength add(QuantityLength other){
-            if (other == null)
-                throw new IllegalArgumentException("Other length cannot be null");
-            double sumFeet = this.toFeet() + other.toFeet();
-            double result = this.unit.fromFeet(sumFeet);
-
-            return new QuantityLength(result, this.unit);
+            double base= source.convertToBaseUnit(value);
+            return target.convertFromBaseUnit(base);
         }
-        //UC7 ADDITION WITH TARGET UNIT
-        public QuantityLength add(QuantityLength other, LengthUnit targetUnit){
+        //ADDITION (UC6) 
+        public QuantityLength add(QuantityLength other){
             if (other==null)
                 throw new IllegalArgumentException("Other length cannot be null");
-            if (targetUnit==null)
+            double sumBase= this.toBase() + other.toBase();
+            double result= this.unit.convertFromBaseUnit(sumBase);
+            return new QuantityLength(result, this.unit);
+        }
+        //ADDITION WITH TARGET UNIT (UC7)
+        public QuantityLength add(QuantityLength other, LengthUnit targetUnit){
+            if(other==null)
+                throw new IllegalArgumentException("Other length cannot be null");
+
+            if(targetUnit==null)
                 throw new IllegalArgumentException("Target unit cannot be null");
-            double sumFeet = this.toFeet() + other.toFeet();
-            double result = targetUnit.fromFeet(sumFeet);
-            
+            double sumBase= this.toBase() + other.toBase();
+            double result= targetUnit.convertFromBaseUnit(sumBase);
             return new QuantityLength(result, targetUnit);
-        }// optional static overloads
+        }
         public static QuantityLength add(QuantityLength a,
                                          QuantityLength b,
-                                         LengthUnit targetUnit){
-            if(a==null || b==null)
+                                         LengthUnit targetUnit) {
+
+            if (a==null || b==null)
                 throw new IllegalArgumentException("Lengths cannot be null");
             return a.add(b, targetUnit);
         }
-        //EQUALITY 
+        //EQUALITY
         @Override
         public boolean equals(Object obj){
-            if (this==obj) return true;
-            if (obj==null || getClass() != obj.getClass()) return false;
 
-            QuantityLength other= (QuantityLength)obj;
+            if (this== obj) return true;
+            if (obj== null || getClass() != obj.getClass()) return false;
 
-            return Double.compare(this.toFeet(), other.toFeet()) == 0;
+            QuantityLength other=(QuantityLength) obj;
+
+            return Double.compare(this.toBase(), other.toBase()) == 0;
         }
         @Override
         public int hashCode(){
-            return Double.hashCode(toFeet());
+            return Double.hashCode(toBase());
         }
         @Override
         public String toString(){
             return value + " " + unit;
         }
     }
-                       // DEMO 
-    public static QuantityLength demonstrateLengthAddition(
-            QuantityLength a, QuantityLength b, LengthUnit target){
-        QuantityLength result = a.add(b, target);
-        System.out.println(a + " + " + b + " -> " + result);
-        return result;
-    }
+    //MAIN (demo)
     public static void main(String[] args){
         QuantityLength f= new QuantityLength(1, LengthUnit.FEET);
         QuantityLength i= new QuantityLength(12, LengthUnit.INCH);
+        QuantityLength y=new QuantityLength(1, LengthUnit.YARDS);
 
-        demonstrateLengthAddition(f, i, LengthUnit.FEET);
-        demonstrateLengthAddition(f, i, LengthUnit.INCH);
-        demonstrateLengthAddition(f, i, LengthUnit.YARDS);
+        System.out.println(f.convertTo(LengthUnit.INCH));       // 12 INCH
+        System.out.println(f.add(i, LengthUnit.FEET));          // 2 FEET
+        System.out.println(i.equals(y));                        // false
+        System.out.println(new QuantityLength(36, LengthUnit.INCH)
+                .equals(new QuantityLength(1, LengthUnit.YARDS))); // true
     }
 }
