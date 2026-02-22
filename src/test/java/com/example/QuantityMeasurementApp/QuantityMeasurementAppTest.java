@@ -1,163 +1,203 @@
 package com.example.QuantityMeasurementApp;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-class QuantityMeasurementAppTest{
-    private static final double EPS = 1e-6;
-    private QuantityMeasurementApp.QuantityLength q(double v, LengthUnit u){
+
+class QuantityMeasurementAppTest {
+
+    private static final double EPS=1e-6;
+
+    private QuantityWeight w(double v, WeightUnit u) {
+        return new QuantityWeight(v, u);
+    }
+
+    private QuantityMeasurementApp.QuantityLength l(double v, LengthUnit u) {
         return new QuantityMeasurementApp.QuantityLength(v, u);
     }
-    // UC8 – ENUM CONSTANT TESTS
+    // EQUALITY TESTS
     @Test
-    void testLengthUnitEnum_FeetConstant(){
-        assertEquals(1.0, LengthUnit.FEET.getConversionFactor(), EPS);
-    }
-    @Test
-    void testLengthUnitEnum_InchesConstant(){
-        assertEquals(1.0/12.0, LengthUnit.INCH.getConversionFactor(), EPS);
-    }
-    @Test
-    void testLengthUnitEnum_YardsConstant(){
-        assertEquals(3.0, LengthUnit.YARDS.getConversionFactor(), EPS);
-    }
-    @Test
-    void testLengthUnitEnum_CentimetersConstant() {
-        assertEquals(0.393701/12.0, LengthUnit.CENTIMETERS.getConversionFactor(), EPS);
-    }
-    // UC8 – TO BASE UNIT
-       @Test
-    void testConvertToBaseUnit_FeetToFeet(){
-        assertEquals(5.0,
-                LengthUnit.FEET.convertToBaseUnit(5.0),
-                EPS);
-    }
-    @Test
-    void testConvertToBaseUnit_InchesToFeet(){
-        assertEquals(1.0,
-                LengthUnit.INCH.convertToBaseUnit(12.0),
-                EPS);
+    void testEquality_KilogramToKilogram_SameValue() {
+        assertTrue(w(1, WeightUnit.KILOGRAM).equals(w(1, WeightUnit.KILOGRAM)));
     }
 
     @Test
-    void testConvertToBaseUnit_YardsToFeet(){
-        assertEquals(3.0,
-                LengthUnit.YARDS.convertToBaseUnit(1.0),
-                EPS);
+    void testEquality_KilogramToKilogram_DifferentValue() {
+        assertFalse(w(1, WeightUnit.KILOGRAM).equals(w(2, WeightUnit.KILOGRAM)));
     }
     @Test
-    void testConvertToBaseUnit_CentimetersToFeet() {
-        assertEquals(1.0,
-                LengthUnit.CENTIMETERS.convertToBaseUnit(30.48),
-                1e-5);
+    void testEquality_KilogramToGram_EquivalentValue() {
+        assertTrue(w(1, WeightUnit.KILOGRAM).equals(w(1000, WeightUnit.GRAM)));
     }
-    // UC8 – FROM BASE UNIT
+    @Test
+    void testEquality_GramToKilogram_EquivalentValue() {
+        assertTrue(w(1000, WeightUnit.GRAM).equals(w(1, WeightUnit.KILOGRAM)));
+    }
+
+    @Test
+    void testEquality_KilogramToPound_EquivalentValue() {
+        assertTrue(w(1, WeightUnit.KILOGRAM)
+                .equals(w(2.20462, WeightUnit.POUND)));
+    }
+    @Test
+    void testEquality_PoundToGram_EquivalentValue() {
+        assertTrue(w(1, WeightUnit.POUND)
+                .equals(w(453.592, WeightUnit.GRAM)));
+    }
+
+    @Test
+    void testEquality_WeightVsLength_Incompatible(){
+        assertFalse(w(1, WeightUnit.KILOGRAM)
+                .equals(l(1, LengthUnit.FEET)));
+    }
+
+    @Test
+    void testEquality_NullComparison(){
+        assertFalse(w(1, WeightUnit.KILOGRAM).equals(null));
+    }
+
+    @Test
+    void testEquality_SameReference(){
+        QuantityWeight x = w(5, WeightUnit.KILOGRAM);
+        assertTrue(x.equals(x));
+    }
+
+    @Test
+    void testEquality_ZeroValue() {
+        assertTrue(w(0, WeightUnit.KILOGRAM).equals(w(0, WeightUnit.GRAM)));
+    }
+
+    @Test
+    void testEquality_NegativeWeight() {
+        assertTrue(w(-1, WeightUnit.KILOGRAM).equals(w(-1000, WeightUnit.GRAM)));
+    }
+
+    @Test
+    void testEquality_LargeWeightValue() {
+        assertTrue(w(1000, WeightUnit.KILOGRAM)
+                .equals(w(1_000_000, WeightUnit.GRAM)));
+    }
+
+    @Test
+    void testEquality_SmallWeightValue(){
+        assertTrue(w(0.001, WeightUnit.KILOGRAM)
+                .equals(w(1, WeightUnit.GRAM)));
+    }
+    // CONVERSION TESTS
+    @Test
+    void testConversion_KilogramToGram() {
+        assertTrue(w(1, WeightUnit.KILOGRAM)
+                .convertTo(WeightUnit.GRAM)
+                .equals(w(1000, WeightUnit.GRAM)));
+    }
+
+    @Test
+    void testConversion_PoundToKilogram(){
+        assertTrue(w(2.20462, WeightUnit.POUND)
+                .convertTo(WeightUnit.KILOGRAM)
+                .equals(w(1, WeightUnit.KILOGRAM)));
+    }
+
+    @Test
+    void testConversion_KilogramToPound(){
+        assertTrue(w(1, WeightUnit.KILOGRAM)
+                .convertTo(WeightUnit.POUND)
+                .equals(w(2.20462, WeightUnit.POUND)));
+    }
+
+    @Test
+    void testConversion_SameUnit(){
+        assertTrue(w(5, WeightUnit.KILOGRAM)
+                .convertTo(WeightUnit.KILOGRAM)
+                .equals(w(5, WeightUnit.KILOGRAM)));
+    }
+
+    @Test
+    void testConversion_ZeroValue() {
+        assertTrue(w(0, WeightUnit.KILOGRAM)
+                .convertTo(WeightUnit.GRAM)
+                .equals(w(0, WeightUnit.GRAM)));
+    }
+    @Test
+    void testConversion_NegativeValue() {
+        assertTrue(w(-1, WeightUnit.KILOGRAM)
+                .convertTo(WeightUnit.GRAM)
+                .equals(w(-1000, WeightUnit.GRAM)));
+    }
+    @Test
+    void testConversion_RoundTrip(){
+
+        QuantityWeight original= w(1.5, WeightUnit.KILOGRAM);
+
+        QuantityWeight roundTrip =
+                original.convertTo(WeightUnit.GRAM)
+                        .convertTo(WeightUnit.KILOGRAM);
+
+        assertEquals(original, roundTrip);
+    }
+    // ADDITION (IMPLICIT UNIT)
         @Test
-    void testConvertFromBaseUnit_FeetToFeet() {
-        assertEquals(2.0,
-                LengthUnit.FEET.convertFromBaseUnit(2.0),
-                EPS);
+    void testAddition_SameUnit_KilogramPlusKilogram() {
+        assertTrue(w(1, WeightUnit.KILOGRAM)
+                .add(w(2, WeightUnit.KILOGRAM))
+                .equals(w(3, WeightUnit.KILOGRAM)));
     }
     @Test
-    void testConvertFromBaseUnit_FeetToInches(){
-        assertEquals(12.0,
-                LengthUnit.INCH.convertFromBaseUnit(1.0),
-                EPS);
+    void testAddition_CrossUnit_KilogramPlusGram() {
+        assertTrue(w(1, WeightUnit.KILOGRAM)
+                .add(w(1000, WeightUnit.GRAM))
+                .equals(w(2, WeightUnit.KILOGRAM)));
     }
     @Test
-    void testConvertFromBaseUnit_FeetToYards(){
-        assertEquals(1.0,
-                LengthUnit.YARDS.convertFromBaseUnit(3.0),
-                EPS);
+    void testAddition_CrossUnit_PoundPlusKilogram() {
+        assertTrue(w(2.20462, WeightUnit.POUND)
+                .add(w(1, WeightUnit.KILOGRAM))
+                .equals(w(4.40924, WeightUnit.POUND)));
+    }
+    // ADDITION (EXPLICIT TARGET)
+
+    @Test
+    void testAddition_ExplicitTargetUnit_Gram() {
+        assertTrue(w(1, WeightUnit.KILOGRAM)
+                .add(w(1000, WeightUnit.GRAM), WeightUnit.GRAM)
+                .equals(w(2000, WeightUnit.GRAM)));
     }
     @Test
-    void testConvertFromBaseUnit_FeetToCentimeters(){
-        assertEquals(30.48,
-                LengthUnit.CENTIMETERS.convertFromBaseUnit(1.0),
-                1e-5);
-    }
-    // UC8 – QUANTITY BEHAVIOR
-        @Test
-    void testQuantityLengthRefactored_Equality(){
-        assertTrue(
-                q(1.0, LengthUnit.FEET)
-                        .equals(q(12.0, LengthUnit.INCH))
+    void testAddition_Commutativity() {
+
+        QuantityWeight a= w(1, WeightUnit.KILOGRAM);
+        QuantityWeight b= w(1000, WeightUnit.GRAM);
+        assertEquals(
+                a.add(b).convertTo(WeightUnit.KILOGRAM),
+                b.add(a).convertTo(WeightUnit.KILOGRAM)
         );
     }
     @Test
-    void testQuantityLengthRefactored_ConvertTo(){
-
-        var result= q(1.0, LengthUnit.FEET)
-                .convertTo(LengthUnit.INCH);
-
-        assertTrue(result.equals(q(12.0, LengthUnit.INCH)));
+    void testAddition_WithZero() {
+        assertTrue(w(5, WeightUnit.KILOGRAM)
+                .add(w(0, WeightUnit.GRAM))
+                .equals(w(5, WeightUnit.KILOGRAM)));
     }
     @Test
-    void testQuantityLengthRefactored_Add(){
-
-        var result= q(1.0, LengthUnit.FEET)
-                .add(q(12.0, LengthUnit.INCH), LengthUnit.FEET);
-
-        assertTrue(result.equals(q(2.0, LengthUnit.FEET)));
+    void testAddition_NegativeValues() {
+        assertTrue(w(5, WeightUnit.KILOGRAM)
+                .add(w(-2000, WeightUnit.GRAM))
+                .equals(w(3, WeightUnit.KILOGRAM)));
     }
     @Test
-    void testQuantityLengthRefactored_AddWithTargetUnit(){
-
-        var result= q(1.0, LengthUnit.FEET)
-                .add(q(12.0, LengthUnit.INCH), LengthUnit.YARDS);
-
-        assertTrue(result.equals(q(2.0/3.0, LengthUnit.YARDS)));
+    void testAddition_LargeValues() {
+        assertTrue(w(1e6, WeightUnit.KILOGRAM)
+                .add(w(1e6, WeightUnit.KILOGRAM))
+                .equals(w(2e6, WeightUnit.KILOGRAM)));
     }
     // VALIDATION TESTS
-        @Test
-    void testQuantityLengthRefactored_NullUnit(){
+    @Test
+    void testNullUnitConstructor() {
         assertThrows(IllegalArgumentException.class,
-                () -> new QuantityMeasurementApp.QuantityLength(1.0, null));
+                () -> new QuantityWeight(1, null));
     }
-
     @Test
-    void testQuantityLengthRefactored_InvalidValue(){
+    void testInvalidValueConstructor() {
         assertThrows(IllegalArgumentException.class,
-                () -> new QuantityMeasurementApp.QuantityLength(Double.NaN, LengthUnit.FEET));
-    }
-    // ROUND TRIP CONVERSION
-       @Test
-    void testRoundTripConversion_RefactoredDesign(){
-        double original= 7.25;
-        double inches=QuantityMeasurementApp.QuantityLength.convert(
-                original, LengthUnit.FEET, LengthUnit.INCH);
-
-        double back= QuantityMeasurementApp.QuantityLength.convert(
-                inches, LengthUnit.INCH, LengthUnit.FEET);
-
-        assertEquals(original, back, EPS);
-    }
-    // BACKWARD COMPATIBILITY
-    @Test
-    void testBackwardCompatibility_UC1Equality() {
-        assertTrue(q(2, LengthUnit.FEET).equals(q(24, LengthUnit.INCH)));
-    }
-    @Test
-    void testBackwardCompatibility_UC5Conversion() {
-
-        double r=QuantityMeasurementApp.QuantityLength.convert(
-                1, LengthUnit.YARDS, LengthUnit.INCH);
-
-        assertEquals(36.0, r, EPS);
-    }
-    @Test
-    void testBackwardCompatibility_UC6Addition() {
-
-        var result= q(1, LengthUnit.FEET)
-                .add(q(12, LengthUnit.INCH));
-
-        assertTrue(result.equals(q(2, LengthUnit.FEET)));
-    }
-    @Test
-    void testBackwardCompatibility_UC7AdditionWithTargetUnit() {
-
-        var result=q(1, LengthUnit.FEET)
-                .add(q(12, LengthUnit.INCH), LengthUnit.INCH);
-
-        assertTrue(result.equals(q(24, LengthUnit.INCH)));
+                () -> new QuantityWeight(Double.NaN, WeightUnit.KILOGRAM));
     }
 
 }
