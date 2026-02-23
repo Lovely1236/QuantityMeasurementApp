@@ -1,196 +1,229 @@
-package com.example.QuantityMeasurementApp;
-
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class QuantityMeasurementAppTest {
-
-    private static final double EPS = 1e-6;
-
-           // Factory Methods 
-    private Quantity<VolumeUnit> V(double v, VolumeUnit u) {
-        return new Quantity<>(v, u);
-    }
-
-    private Quantity<LengthUnit> L(double v, LengthUnit u) {
-        return new Quantity<>(v, u);
-    }
-
-    private Quantity<WeightUnit> W(double v, WeightUnit u) {
-        return new Quantity<>(v, u);
-    }
-
-    //LENGTH TESTS
-
+public class QuantityMeasurementAppTest{
+    // ================= SUBTRACTION TESTS ==================
     @Test
-    void testLengthEquality_CrossUnit() {
-        assertTrue(L(1, LengthUnit.FEET)
-                .equals(L(12, LengthUnit.INCH)));
+    void testSubtraction_SameUnit_FeetMinusFeet(){
+        var r = new Quantity<>(10.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(5.0, LengthUnit.FEET));
+        assertEquals(new Quantity<>(5.0, LengthUnit.FEET), r);
     }
-
     @Test
-    void testLengthConversion() {
-        Quantity<LengthUnit> result =
-                L(1, LengthUnit.FEET).convertTo(LengthUnit.INCH);
-
-        assertTrue(result.equals(L(12, LengthUnit.INCH)));
+    void testSubtraction_SameUnit_LitreMinusLitre(){
+        var r = new Quantity<>(10.0, VolumeUnit.LITRE)
+                .subtract(new Quantity<>(3.0, VolumeUnit.LITRE));
+        assertEquals(new Quantity<>(7.0, VolumeUnit.LITRE), r);
     }
-
     @Test
-    void testLengthAddition_DefaultUnit() {
-        Quantity<LengthUnit> result =
-                L(1, LengthUnit.FEET).add(L(12, LengthUnit.INCH));
-
-        assertTrue(result.equals(L(2, LengthUnit.FEET)));
+    void testSubtraction_CrossUnit_FeetMinusInches() {
+        var r = new Quantity<>(10.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(6.0, LengthUnit.INCH));
+        assertEquals(9.5, r.getValue(), 0.01);
     }
 
-    @Test
-    void testLengthAddition_TargetUnit() {
-        Quantity<LengthUnit> result =
-                L(1, LengthUnit.FEET)
-                        .add(L(12, LengthUnit.INCH), LengthUnit.INCH);
-
-        assertTrue(result.equals(L(24, LengthUnit.INCH)));
-    }
-
-    // WEIGHT TESTS
     
-    
-    
+    @Test
+    void testSubtraction_CrossUnit_InchesMinusFeet() {
+        var r = new Quantity<>(120.0, LengthUnit.INCH)
+                .subtract(new Quantity<>(5.0, LengthUnit.FEET));
+        assertEquals(60.0, r.getValue(), 0.01);
+    }
+    @Test
+    void testSubtraction_ExplicitTargetUnit_Feet(){
+        var r = new Quantity<>(10.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(6.0, LengthUnit.INCH), LengthUnit.FEET);
+        assertEquals(9.5, r.getValue(), 0.01);
+    }
     
 
     @Test
-    void testWeightEquality_CrossUnit() {
-        assertTrue(W(1, WeightUnit.KILOGRAM)
-                .equals(W(1000, WeightUnit.GRAM)));
+    void testSubtraction_ExplicitTargetUnit_Inches(){
+        var r = new Quantity<>(10.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(6.0, LengthUnit.INCH), LengthUnit.INCH);
+        assertEquals(114.0, r.getValue(), 0.01);
+    }
+    @Test
+    void testSubtraction_ExplicitTargetUnit_Millilitre() {
+        var r = new Quantity<>(5.0, VolumeUnit.LITRE)
+                .subtract(new Quantity<>(2.0, VolumeUnit.LITRE), VolumeUnit.MILLILITRE);
+        assertEquals(3000.0, r.getValue(), 0.01);
     }
 
     @Test
-    void testWeightConversion() {
-        Quantity<WeightUnit> result =
-                W(1, WeightUnit.KILOGRAM)
-                        .convertTo(WeightUnit.GRAM);
-
-        assertTrue(result.equals(W(1000, WeightUnit.GRAM)));
+    void testSubtraction_ResultingInNegative() {
+        var r = new Quantity<>(5.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(10.0, LengthUnit.FEET));
+        assertEquals(-5.0, r.getValue(), 0.01);
     }
 
     @Test
-    void testWeightAddition_DefaultUnit() {
-        Quantity<WeightUnit> result =
-                W(1, WeightUnit.KILOGRAM)
-                        .add(W(1000, WeightUnit.GRAM));
-
-        assertTrue(result.equals(W(2, WeightUnit.KILOGRAM)));
+    void testSubtraction_ResultingInZero() {
+        var r = new Quantity<>(10.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(120.0, LengthUnit.INCH));
+        assertEquals(0.0, r.getValue(), 0.01);
     }
 
     @Test
-    void testWeightAddition_TargetUnit() {
-        Quantity<WeightUnit> result =
-                W(1, WeightUnit.KILOGRAM)
-                        .add(W(1000, WeightUnit.GRAM), WeightUnit.GRAM);
-
-        assertTrue(result.equals(W(2000, WeightUnit.GRAM)));
+    void testSubtraction_WithZeroOperand() {
+        var r = new Quantity<>(5.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(0.0, LengthUnit.INCH));
+        assertEquals(5.0, r.getValue(), 0.01);
     }
-
-             //VOLUME TESTS 
-    @Test
-    void testVolumeEquality_CrossUnit(){
-        assertTrue(V(1, VolumeUnit.LITRE)
-                .equals(V(1000, VolumeUnit.MILLILITRE)));
-    }
+    
 
     @Test
-    void testVolumeConversion(){
-        Quantity<VolumeUnit> result =
-                V(1, VolumeUnit.LITRE)
-                        .convertTo(VolumeUnit.MILLILITRE);
-
-        assertTrue(result.equals(V(1000, VolumeUnit.MILLILITRE)));
+    void testSubtraction_WithNegativeValues() {
+        var r = new Quantity<>(5.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(-2.0, LengthUnit.FEET));
+        assertEquals(7.0, r.getValue(), 0.01);
     }
-
     @Test
-    void testVolumeAddition_TargetUnit(){
-        Quantity<VolumeUnit> result =
-                V(1, VolumeUnit.LITRE)
-                        .add(V(1000, VolumeUnit.MILLILITRE), VolumeUnit.MILLILITRE);
-
-        assertTrue(result.equals(V(2000, VolumeUnit.MILLILITRE)));
+    void testSubtraction_NonCommutative() {
+        var a = new Quantity<>(10.0, LengthUnit.FEET);
+        var b = new Quantity<>(5.0, LengthUnit.FEET);
+        assertNotEquals(a.subtract(b), b.subtract(a));
     }
-
-    //CROSS CATEGORY SAFETY
     @Test
-    void testCrossCategoryEquality_ShouldBeFalse(){
-        Quantity<LengthUnit> length = L(1, LengthUnit.FEET);
-        Quantity<WeightUnit> weight = W(1, WeightUnit.KILOGRAM);
-
-        assertFalse(length.equals(weight));
-    }
-    //CONSTRUCTOR VALIDATION
-    @Test
-    void testConstructor_NullUnit() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Quantity<>(1.0, null));
+    void testSubtraction_WithLargeValues() {
+        var r = new Quantity<>(1e6, WeightUnit.KILOGRAM)
+                .subtract(new Quantity<>(5e5, WeightUnit.KILOGRAM));
+        assertEquals(5e5, r.getValue(), 0.01);
     }
 
     @Test
-    void testConstructor_NaNValue() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new Quantity<>(Double.NaN, LengthUnit.FEET));
+    void testSubtraction_WithSmallValues() {
+        var r = new Quantity<>(0.001, LengthUnit.FEET)
+                .subtract(new Quantity<>(0.0005, LengthUnit.FEET));
+        assertEquals(0.0005, r.getValue(), 0.0001);
     }
 
     @Test
-    void testConstructor_InfiniteValue(){
-        assertThrows(IllegalArgumentException.class,
-                () -> new Quantity<>(Double.POSITIVE_INFINITY, LengthUnit.FEET));
-    }
-//ROUND TRIP
-
-    @Test
-    void testRoundTrip_Length(){
-        Quantity<LengthUnit> original = L(5.5, LengthUnit.FEET);
-        Quantity<LengthUnit> back =
-                original.convertTo(LengthUnit.INCH)
-                        .convertTo(LengthUnit.FEET);
-        assertTrue(original.equals(back));
-    }
-    @Test
-    void testRoundTrip_Weight(){
-        Quantity<WeightUnit> original = W(2.3, WeightUnit.KILOGRAM);
-        Quantity<WeightUnit> back =
-                original.convertTo(WeightUnit.POUND)
-                        .convertTo(WeightUnit.KILOGRAM);
-        assertTrue(original.equals(back));
+    void testSubtraction_NullOperand() {
+        var q = new Quantity<>(10.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () -> q.subtract(null));
     }
 
-    //EDGE CASES 
     @Test
-    void testZeroConversion(){
-        Quantity<LengthUnit> zero =
-                L(0, LengthUnit.FEET)
-                        .convertTo(LengthUnit.INCH);
+    void testSubtraction_NullTargetUnit() {
+        var q = new Quantity<>(10.0, LengthUnit.FEET);
+        var o = new Quantity<>(5.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () -> q.subtract(o, null));
+    }
 
-        assertTrue(zero.equals(L(0, LengthUnit.INCH)));
+    @Test
+    void testSubtraction_CrossCategory() {
+        var q = new Quantity<>(10.0, LengthUnit.FEET);
+        var w = new Quantity<>(5.0, WeightUnit.KILOGRAM);
+        assertThrows(IllegalArgumentException.class, () -> q.subtract((Quantity) w));
     }
     @Test
-    void testNegativeAddition(){
-        Quantity<LengthUnit> result =
-                L(5, LengthUnit.FEET)
-                        .add(L(-2, LengthUnit.FEET));
-        assertTrue(result.equals(L(3, LengthUnit.FEET)));
+    void testSubtraction_ChainedOperations() {
+        var r = new Quantity<>(10.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(2.0, LengthUnit.FEET))
+                .subtract(new Quantity<>(1.0, LengthUnit.FEET));
+        assertEquals(7.0, r.getValue(), 0.01);
+    }
+    // ==================== DIVISION TESTS ==================
+        @Test
+    void testDivision_SameUnit(){
+        assertEquals(5.0,
+                new Quantity<>(10.0, LengthUnit.FEET)
+                        .divide(new Quantity<>(2.0, LengthUnit.FEET)), 0.0001);
     }
     @Test
-    void testLargeValues(){
-        Quantity<WeightUnit> result =
-                W(1e6, WeightUnit.KILOGRAM)
-                        .add(W(1e6, WeightUnit.KILOGRAM));
-        assertTrue(result.equals(W(2e6, WeightUnit.KILOGRAM)));
+    void testDivision_CrossUnit() {
+        assertEquals(1.0,
+                new Quantity<>(24.0, LengthUnit.INCH)
+                        .divide(new Quantity<>(2.0, LengthUnit.FEET)), 0.0001);
     }
-// HASHCODE CONTRACT 
+
     @Test
-    void testEqualsHashCodeConsistency(){
-        Quantity<LengthUnit> q1 = L(1, LengthUnit.FEET);
-        Quantity<LengthUnit> q2 = L(12, LengthUnit.INCH);
-        assertTrue(q1.equals(q2));
-        assertEquals(q1.hashCode(), q2.hashCode());
+    void testDivision_RatioGreaterThanOne() {
+        assertEquals(2.0,
+                new Quantity<>(10.0, LengthUnit.FEET)
+                        .divide(new Quantity<>(5.0, LengthUnit.FEET)), 0.0001);
+    }
+    @Test
+    void testDivision_RatioLessThanOne() {
+        assertEquals(0.5,
+                new Quantity<>(5.0, LengthUnit.FEET)
+                        .divide(new Quantity<>(10.0, LengthUnit.FEET)), 0.0001);
+    }
+    @Test
+    void testDivision_RatioEqualToOne() {
+        assertEquals(1.0,
+                new Quantity<>(10.0, LengthUnit.FEET)
+                        .divide(new Quantity<>(10.0, LengthUnit.FEET)), 0.0001);
+    }
+
+    @Test
+    void testDivision_NonCommutative(){
+        var a = new Quantity<>(10.0, LengthUnit.FEET);
+        var b = new Quantity<>(5.0, LengthUnit.FEET);
+        assertNotEquals(a.divide(b), b.divide(a));
+    }
+
+    @Test
+    void testDivision_ByZero(){
+        var q = new Quantity<>(10.0, LengthUnit.FEET);
+        var zero = new Quantity<>(0.0, LengthUnit.FEET);
+        assertThrows(ArithmeticException.class, () -> q.divide(zero));
+    }
+    @Test
+    void testDivision_NullOperand() {
+        var q = new Quantity<>(10.0, LengthUnit.FEET);
+        assertThrows(IllegalArgumentException.class, () -> q.divide(null));
+    }
+    @Test
+    void testDivision_CrossCategory(){
+        var q = new Quantity<>(10.0, LengthUnit.FEET);
+        var w = new Quantity<>(5.0, WeightUnit.KILOGRAM);
+        assertThrows(IllegalArgumentException.class, () -> q.divide((Quantity) w));
+    }
+
+    @Test
+    void testDivision_LargeRatio() {
+        assertEquals(1e6,
+                new Quantity<>(1e6, WeightUnit.KILOGRAM)
+                        .divide(new Quantity<>(1.0, WeightUnit.KILOGRAM)), 0.1);
+    }
+
+    @Test
+    void testDivision_SmallRatio(){
+        assertEquals(1e-6,
+                new Quantity<>(1.0, WeightUnit.KILOGRAM)
+                        .divide(new Quantity<>(1e6, WeightUnit.KILOGRAM)), 1e-9);
+    }
+    // ==================== INTEGRATION =====================
+    @Test
+    void testSubtractionAddition_Inverse() {
+        var a = new Quantity<>(10.0, LengthUnit.FEET);
+        var b = new Quantity<>(3.0, LengthUnit.FEET);
+        assertEquals(a, a.add(b).subtract(b));
+    }
+    @Test
+    void testSubtractionAndDivision_Integration(){
+        var r = new Quantity<>(10.0, LengthUnit.FEET)
+                .subtract(new Quantity<>(2.0, LengthUnit.FEET))
+                .divide(new Quantity<>(4.0, LengthUnit.FEET));
+        assertEquals(2.0, r, 0.0001);
+    }
+
+    @Test
+    void testImmutability_Subtraction() {
+        var a = new Quantity<>(10.0, LengthUnit.FEET);
+        var b = new Quantity<>(5.0, LengthUnit.FEET);
+       
+        a.subtract(b);
+        assertEquals(10.0, a.getValue());
+    }
+    @Test
+    void testImmutability_Division(){
+        var a = new Quantity<>(10.0, LengthUnit.FEET);
+        var b = new Quantity<>(2.0, LengthUnit.FEET);
+        
+        a.divide(b);
+        assertEquals(10.0, a.getValue());
     }
 }

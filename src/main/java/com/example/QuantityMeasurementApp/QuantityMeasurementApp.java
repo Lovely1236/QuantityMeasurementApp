@@ -15,18 +15,27 @@ public class QuantityMeasurementApp {
     }
 
     public static void main(String[] args){
-        // ---------- LENGTH ----------
-        Quantity<LengthUnit> f= new Quantity<>(1, LengthUnit.FEET);
-        Quantity<LengthUnit>i = new Quantity<>(12, LengthUnit.INCH);
 
-        demonstrateEquality(f, i);
-        demonstrateConversion(f, LengthUnit.INCH);
-        demonstrateAddition(f, i, LengthUnit.FEET);
-        // ---------- WEIGHT ----------
-        Quantity<WeightUnit> kg= new Quantity<>(1, WeightUnit.KILOGRAM);
-        Quantity<WeightUnit> g= new Quantity<>(1000, WeightUnit.GRAM);
-        demonstrateEquality(kg, g);
-        demonstrateConversion(kg, WeightUnit.GRAM);
-        demonstrateAddition(kg, g, WeightUnit.KILOGRAM);
+        // LENGTH
+        Quantity<LengthUnit> length1 = new Quantity<>(10.0, LengthUnit.FEET);
+        Quantity<LengthUnit> length2 = new Quantity<>(6.0, LengthUnit.INCH);
+
+        System.out.println("Subtract implicit: " + length1.subtract(length2));
+        System.out.println("Subtract explicit: " + length1.subtract(length2, LengthUnit.INCH));
+        System.out.println("Divide length: " + length1.divide(new Quantity<>(2.0, LengthUnit.FEET)));
+
+        // WEIGHT
+        Quantity<WeightUnit> w1 = new Quantity<>(10.0, WeightUnit.KILOGRAM);
+        Quantity<WeightUnit> w2 = new Quantity<>(5000.0, WeightUnit.GRAM);
+        System.out.println("Weight subtract: " + w1.subtract(w2));
+        System.out.println("Weight divide: " + w1.divide(new Quantity<>(5.0, WeightUnit.KILOGRAM)));
+
+        
+        
+        // VOLUME
+        Quantity<VolumeUnit> v1 = new Quantity<>(5.0, VolumeUnit.LITRE);
+        Quantity<VolumeUnit> v2 = new Quantity<>(500.0, VolumeUnit.MILLILITRE);
+        System.out.println("Volume subtract: " + v1.subtract(v2));
+        System.out.println("Volume divide: " + v1.divide(new Quantity<>(10.0, VolumeUnit.LITRE)));
     }
 }
