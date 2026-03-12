@@ -1,22 +1,18 @@
 package com.example.QuantityMeasurementApp;
-public enum WeightUnit{
-    KILOGRAM(1.0),    // Base unit = KILOGRAM
-    GRAM(0.001),        // 1 g = 0.001 kg
-    POUND(0.453592);    // 1 lb = 0.453592 kg
-    private final double toKilogramFactor;
-
-    WeightUnit(double toKilogramFactor){
-        this.toKilogramFactor = toKilogramFactor;
+public enum WeightUnit implements IMeasurable {
+    KILOGRAM(1.0),
+    GRAM(0.001),
+    POUND(0.453592);
+    private final double factor;
+    WeightUnit(double factor) {
+        this.factor = factor;
     }
-    // Convert this unit → base unit (kg)
-    public double convertToBaseUnit(double value){
-        return value* toKilogramFactor;
+    @Override
+    public double getConversionFactor() {
+        return factor;
     }
-    // Convert base unit (kg) → this unit
-    public double convertFromBaseUnit(double baseValue) {
-        return baseValue / toKilogramFactor;
-    }
-    public double getConversionFactor(){
-        return toKilogramFactor;
+    @Override
+    public String getUnitName() {
+        return name();
     }
 }

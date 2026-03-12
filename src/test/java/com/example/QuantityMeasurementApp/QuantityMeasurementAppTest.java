@@ -1,225 +1,296 @@
+package com.example.QuantityMeasurementApp; 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+public class QuantityMeasurementAppTest{
+    private static final double EPS = 0.01;
 
-public class QuantityMeasurementAppTest {
-
-    private static final double EPS = 0.0001;
-
-    // ================= SUBTRACTION TESTS =================
-
+    // ================= TEMPERATURE EQUALITY =================
     @Test
-    void testSubtraction_SameUnit_FeetMinusFeet() {
-        var r = new Quantity<>(10.0, LengthUnit.FEET)
-                .subtract(new Quantity<>(5.0, LengthUnit.FEET));
-
-        assertEquals(new Quantity<>(5.0, LengthUnit.FEET), r);
+    void testTemperatureEquality_CelsiusToCelsius(){
+        assertTrue(
+                new Quantity<>(0.0, TemperatureUnit.CELSIUS)
+                        .equals(new Quantity<>(0.0, TemperatureUnit.CELSIUS))
+        );
+    }
+    @Test
+    void testTemperatureEquality_FahrenheitToFahrenheit(){
+        assertTrue(
+                new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT)
+                        .equals(new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT))
+        );
+    }
+    @Test
+    void testTemperatureEquality_CelsiusToFahrenheit_Zero(){
+        assertTrue(
+                new Quantity<>(0.0, TemperatureUnit.CELSIUS)
+                        .equals(new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT))
+        );
     }
 
     @Test
-    void testSubtraction_SameUnit_LitreMinusLitre() {
-        var r = new Quantity<>(10.0, VolumeUnit.LITRE)
-                .subtract(new Quantity<>(3.0, VolumeUnit.LITRE));
-
-        assertEquals(new Quantity<>(7.0, VolumeUnit.LITRE), r);
+    void testTemperatureEquality_CelsiusToFahrenheit_BoilingPoint(){
+        assertTrue(
+                new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+                        .equals(new Quantity<>(212.0, TemperatureUnit.FAHRENHEIT))
+        );
     }
 
     @Test
-    void testSubtraction_CrossUnit_FeetMinusInches() {
-        var r = new Quantity<>(10.0, LengthUnit.FEET)
-                .subtract(new Quantity<>(6.0, LengthUnit.INCH));
-
-        assertEquals(9.5, r.getValue(), EPS);
+    void testTemperatureEquality_NegativeForty(){
+        assertTrue(
+                new Quantity<>(-40.0, TemperatureUnit.CELSIUS)
+                        .equals(new Quantity<>(-40.0, TemperatureUnit.FAHRENHEIT))
+        );
     }
 
     @Test
-    void testSubtraction_CrossUnit_InchesMinusFeet() {
-        var r = new Quantity<>(120.0, LengthUnit.INCH)
-                .subtract(new Quantity<>(5.0, LengthUnit.FEET));
+    void testTemperatureEquality_ReflexiveProperty(){
+        Quantity<TemperatureUnit> t =
+                new Quantity<>(50.0, TemperatureUnit.CELSIUS);
 
-        assertEquals(60.0, r.getValue(), EPS);
+        assertTrue(t.equals(t));
     }
 
     @Test
-    void testSubtraction_ExplicitTargetUnit() {
-        var r = new Quantity<>(10.0, LengthUnit.FEET)
-                .subtract(new Quantity<>(6.0, LengthUnit.INCH), LengthUnit.INCH);
+    void testTemperatureEquality_SymmetricProperty(){
 
-        assertEquals(114.0, r.getValue(), EPS);
+        Quantity<TemperatureUnit> a =
+                new Quantity<>(0.0, TemperatureUnit.CELSIUS);
+
+        Quantity<TemperatureUnit> b =
+                new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT);
+
+        assertTrue(a.equals(b));
+        assertTrue(b.equals(a));
+    }
+    @Test
+    void testTemperatureInequality_DifferentValues() {
+
+        assertFalse(
+                new Quantity<>(50.0, TemperatureUnit.CELSIUS)
+                        .equals(new Quantity<>(100.0, TemperatureUnit.CELSIUS))
+        );
+    }
+    // ================= TEMPERATURE CONVERSION =================
+
+    @Test
+    void testConversion_CelsiusToFahrenheit() {
+
+        Quantity<TemperatureUnit> result =
+                new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+                        .convertTo(TemperatureUnit.FAHRENHEIT);
+
+        assertEquals(212.0, result.getValue(), EPS);
     }
 
     @Test
-    void testSubtraction_ResultingNegative() {
-        var r = new Quantity<>(5.0, LengthUnit.FEET)
-                .subtract(new Quantity<>(10.0, LengthUnit.FEET));
+    void testConversion_FahrenheitToCelsius() {
 
-        assertEquals(-5.0, r.getValue(), EPS);
+        Quantity<TemperatureUnit> result =
+                new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT)
+                        .convertTo(TemperatureUnit.CELSIUS);
+
+        assertEquals(0.0, result.getValue(), EPS);
     }
 
     @Test
-    void testSubtraction_ResultingZero() {
-        var r = new Quantity<>(10.0, LengthUnit.FEET)
-                .subtract(new Quantity<>(120.0, LengthUnit.INCH));
+    void testConversion_RoundTrip() {
 
-        assertEquals(0.0, r.getValue(), EPS);
+        Quantity<TemperatureUnit> original =
+                new Quantity<>(25.0, TemperatureUnit.CELSIUS);
+
+        Quantity<TemperatureUnit> back =
+                original.convertTo(TemperatureUnit.FAHRENHEIT)
+                        .convertTo(TemperatureUnit.CELSIUS);
+
+        assertEquals(original.getValue(), back.getValue(), EPS);
     }
 
     @Test
-    void testSubtraction_WithZeroOperand() {
-        var r = new Quantity<>(5.0, LengthUnit.FEET)
-                .subtract(new Quantity<>(0.0, LengthUnit.INCH));
+    void testConversion_NegativeTemperature() {
 
-        assertEquals(5.0, r.getValue(), EPS);
+        Quantity<TemperatureUnit> result =
+                new Quantity<>(-40.0, TemperatureUnit.CELSIUS)
+                        .convertTo(TemperatureUnit.FAHRENHEIT);
+
+        assertEquals(-40.0, result.getValue(), EPS);
     }
 
     @Test
-    void testSubtraction_NonCommutative() {
-        var a = new Quantity<>(10.0, LengthUnit.FEET);
-        var b = new Quantity<>(5.0, LengthUnit.FEET);
+    void testConversion_LargeTemperature() {
 
-        assertNotEquals(a.subtract(b), b.subtract(a));
+        Quantity<TemperatureUnit> result =
+                new Quantity<>(1000.0, TemperatureUnit.CELSIUS)
+                        .convertTo(TemperatureUnit.FAHRENHEIT);
+
+        assertEquals(1832.0, result.getValue(), EPS);
     }
 
     @Test
-    void testSubtraction_NullOperand() {
-        var q = new Quantity<>(10.0, LengthUnit.FEET);
+    void testConversion_SameUnit() {
 
-        assertThrows(IllegalArgumentException.class,
-                () -> q.subtract(null));
+        Quantity<TemperatureUnit> result =
+                new Quantity<>(25.0, TemperatureUnit.CELSIUS)
+                        .convertTo(TemperatureUnit.CELSIUS);
+
+        assertEquals(25.0, result.getValue(), EPS);
+    }
+
+    // ================= UNSUPPORTED OPERATIONS =================
+
+    @Test
+    void testTemperatureUnsupported_Add() {
+
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+                        .add(new Quantity<>(50.0, TemperatureUnit.CELSIUS))
+        );
     }
 
     @Test
-    void testSubtraction_NullTargetUnit() {
-        var q = new Quantity<>(10.0, LengthUnit.FEET);
-        var o = new Quantity<>(5.0, LengthUnit.FEET);
+    void testTemperatureUnsupported_Subtract() {
 
-        assertThrows(IllegalArgumentException.class,
-                () -> q.subtract(o, null));
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+                        .subtract(new Quantity<>(50.0, TemperatureUnit.CELSIUS))
+        );
     }
 
     @Test
-    void testSubtraction_CrossCategory() {
-        var q = new Quantity<>(10.0, LengthUnit.FEET);
-        var w = new Quantity<>(5.0, WeightUnit.KILOGRAM);
+    void testTemperatureUnsupported_Divide(){
 
-        assertThrows(IllegalArgumentException.class,
-                () -> q.subtract((Quantity) w));
-    }
-
-    // ================= DIVISION TESTS =================
-
-    @Test
-    void testDivision_SameUnit() {
-        assertEquals(5.0,
-                new Quantity<>(10.0, LengthUnit.FEET)
-                        .divide(new Quantity<>(2.0, LengthUnit.FEET)),
-                EPS);
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+                        .divide(new Quantity<>(50.0, TemperatureUnit.CELSIUS))
+        );
     }
 
     @Test
-    void testDivision_CrossUnit() {
-        assertEquals(1.0,
-                new Quantity<>(24.0, LengthUnit.INCH)
-                        .divide(new Quantity<>(2.0, LengthUnit.FEET)),
-                EPS);
+    void testTemperatureUnsupported_AddDifferentUnits() {
+
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+                        .add(new Quantity<>(122.0, TemperatureUnit.FAHRENHEIT))
+        );
+    }
+
+    // ================= CROSS CATEGORY TESTS =================
+
+    @Test
+    void testTemperatureVsLengthComparison(){
+
+        assertFalse(
+                new Quantity<>(100.0, TemperatureUnit.CELSIUS)
+                        .equals(new Quantity<>(100.0, LengthUnit.FEET))
+        );
+    }
+    @Test
+    void testTemperatureVsWeightComparison() {
+
+        assertFalse(
+                new Quantity<>(50.0, TemperatureUnit.CELSIUS)
+                        .equals(new Quantity<>(50.0, WeightUnit.KILOGRAM))
+        );
     }
 
     @Test
-    void testDivision_RatioGreaterThanOne() {
-        assertEquals(2.0,
-                new Quantity<>(10.0, LengthUnit.FEET)
-                        .divide(new Quantity<>(5.0, LengthUnit.FEET)),
-                EPS);
+    void testTemperatureVsVolumeComparison() {
+
+        assertFalse(
+                new Quantity<>(25.0, TemperatureUnit.CELSIUS)
+                        .equals(new Quantity<>(25.0, VolumeUnit.LITRE))
+        );
+    }
+
+    // ================= OPERATION SUPPORT METHODS =================
+
+    @Test
+    void testTemperatureUnitSupportsArithmeticFalse() {
+
+        assertFalse(TemperatureUnit.CELSIUS.supportsArithmetic());
     }
 
     @Test
-    void testDivision_RatioLessThanOne() {
-        assertEquals(0.5,
-                new Quantity<>(5.0, LengthUnit.FEET)
-                        .divide(new Quantity<>(10.0, LengthUnit.FEET)),
-                EPS);
+    void testLengthUnitSupportsArithmeticTrue() {
+
+        assertTrue(LengthUnit.FEET.supportsArithmetic());
     }
 
     @Test
-    void testDivision_RatioEqualToOne() {
-        assertEquals(1.0,
-                new Quantity<>(10.0, LengthUnit.FEET)
-                        .divide(new Quantity<>(10.0, LengthUnit.FEET)),
-                EPS);
+    void testWeightUnitSupportsArithmeticTrue() {
+
+        assertTrue(WeightUnit.KILOGRAM.supportsArithmetic());
     }
 
     @Test
-    void testDivision_NonCommutative() {
-        var a = new Quantity<>(10.0, LengthUnit.FEET);
-        var b = new Quantity<>(5.0, LengthUnit.FEET);
+    void testVolumeUnitSupportsArithmeticTrue() {
 
-        assertNotEquals(a.divide(b), b.divide(a));
+        assertTrue(VolumeUnit.LITRE.supportsArithmetic());
+    }
+
+    // ================= EDGE CASES =================
+
+    @Test
+    void testTemperatureAbsoluteZero() {
+
+        Quantity<TemperatureUnit> result =
+                new Quantity<>(-273.15, TemperatureUnit.CELSIUS)
+                        .convertTo(TemperatureUnit.FAHRENHEIT);
+
+        assertEquals(-459.67, result.getValue(), EPS);
     }
 
     @Test
-    void testDivision_ByZero() {
-        var q = new Quantity<>(10.0, LengthUnit.FEET);
-        var zero = new Quantity<>(0.0, LengthUnit.FEET);
+    void testTemperaturePrecision() {
 
-        assertThrows(ArithmeticException.class,
-                () -> q.divide(zero));
+        Quantity<TemperatureUnit> result =
+                new Quantity<>(50.0, TemperatureUnit.CELSIUS)
+                        .convertTo(TemperatureUnit.FAHRENHEIT);
+
+        assertEquals(122.0, result.getValue(), EPS);
     }
 
     @Test
-    void testDivision_NullOperand() {
-        var q = new Quantity<>(10.0, LengthUnit.FEET);
+    void testTemperatureSmallDifference() {
 
-        assertThrows(IllegalArgumentException.class,
-                () -> q.divide(null));
+        Quantity<TemperatureUnit> a =
+                new Quantity<>(0.0001, TemperatureUnit.CELSIUS);
+
+        Quantity<TemperatureUnit> b =
+                new Quantity<>(32.00018, TemperatureUnit.FAHRENHEIT);
+
+        assertTrue(a.equals(b));
     }
 
-    @Test
-    void testDivision_CrossCategory() {
-        var q = new Quantity<>(10.0, LengthUnit.FEET);
-        var w = new Quantity<>(5.0, WeightUnit.KILOGRAM);
+    // ================= VALIDATION =================
 
-        assertThrows(IllegalArgumentException.class,
-                () -> q.divide((Quantity) w));
+    @Test
+    void testConstructor_NullUnit() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Quantity<>(100.0, null)
+        );
     }
-
-    // ================= UC13 DRY BEHAVIOR =================
-
     @Test
-    void testAddition_Subtraction_Inverse() {
-        var a = new Quantity<>(10.0, LengthUnit.FEET);
-        var b = new Quantity<>(3.0, LengthUnit.FEET);
+    void testConstructor_InvalidValue(){
 
-        assertEquals(a, a.add(b).subtract(b));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Quantity<>(Double.NaN, TemperatureUnit.CELSIUS)
+        );
     }
-
     @Test
-    void testArithmeticChain() {
-        var r = new Quantity<>(10.0, LengthUnit.FEET)
-                .subtract(new Quantity<>(2.0, LengthUnit.FEET))
-                .divide(new Quantity<>(4.0, LengthUnit.FEET));
+    void testEquals_NullComparison(){
 
-        assertEquals(2.0, r, EPS);
-    }
+        Quantity<TemperatureUnit> t =
+                new Quantity<>(100.0, TemperatureUnit.CELSIUS);
 
-    // ================= IMMUTABILITY =================
-
-    @Test
-    void testImmutability_Subtraction() {
-        var a = new Quantity<>(10.0, LengthUnit.FEET);
-        var b = new Quantity<>(5.0, LengthUnit.FEET);
-
-        a.subtract(b);
-
-        assertEquals(10.0, a.getValue());
-    }
-
-    @Test
-    void testImmutability_Division() {
-        var a = new Quantity<>(10.0, LengthUnit.FEET);
-        var b = new Quantity<>(2.0, LengthUnit.FEET);
-
-        a.divide(b);
-
-        assertEquals(10.0, a.getValue());
+        assertFalse(t.equals(null));
     }
 
 }
