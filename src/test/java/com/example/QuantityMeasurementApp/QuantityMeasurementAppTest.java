@@ -1,296 +1,329 @@
-package com.example.QuantityMeasurementApp; 
+package com.example.QuantityMeasurementApp;
+
 import org.junit.jupiter.api.Test;
+import com.example.QuantityMeasurementApp.exception.*;
+import com.example.QuantityMeasurementApp.controller.QuantityMeasurementController;
+import com.example.QuantityMeasurementApp.dto.QuantityDTO;
+
 import static org.junit.jupiter.api.Assertions.*;
-public class QuantityMeasurementAppTest{
-    private static final double EPS = 0.01;
 
-    // ================= TEMPERATURE EQUALITY =================
+public class QuantityMeasurementAppTest {
+
+    private static final QuantityMeasurementController controller =
+            QuantityMeasurementApp.getInstance().controller;
+
+    // ================= LENGTH COMPARISON =================
+
     @Test
-    void testTemperatureEquality_CelsiusToCelsius(){
-        assertTrue(
-                new Quantity<>(0.0, TemperatureUnit.CELSIUS)
-                        .equals(new Quantity<>(0.0, TemperatureUnit.CELSIUS))
-        );
-    }
-    @Test
-    void testTemperatureEquality_FahrenheitToFahrenheit(){
-        assertTrue(
-                new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT)
-                        .equals(new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT))
-        );
-    }
-    @Test
-    void testTemperatureEquality_CelsiusToFahrenheit_Zero(){
-        assertTrue(
-                new Quantity<>(0.0, TemperatureUnit.CELSIUS)
-                        .equals(new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT))
-        );
+    public void lengthFeetEqualsInches() {
+
+        QuantityDTO feet = new QuantityDTO(
+                1.0,
+                QuantityDTO.LengthUnit.FEET.getUnitName(),
+                QuantityDTO.LengthUnit.FEET.getMeasurementType());
+
+        QuantityDTO inches = new QuantityDTO(
+                12.0,
+                QuantityDTO.LengthUnit.INCHES.getUnitName(),
+                QuantityDTO.LengthUnit.INCHES.getMeasurementType());
+
+        assertTrue(controller.performComparison(feet, inches));
     }
 
     @Test
-    void testTemperatureEquality_CelsiusToFahrenheit_BoilingPoint(){
-        assertTrue(
-                new Quantity<>(100.0, TemperatureUnit.CELSIUS)
-                        .equals(new Quantity<>(212.0, TemperatureUnit.FAHRENHEIT))
-        );
+    public void lengthYardsEqualsFeet() {
+
+        QuantityDTO yards = new QuantityDTO(
+                1.0,
+                QuantityDTO.LengthUnit.YARDS.getUnitName(),
+                QuantityDTO.LengthUnit.YARDS.getMeasurementType());
+
+        QuantityDTO feet = new QuantityDTO(
+                3.0,
+                QuantityDTO.LengthUnit.FEET.getUnitName(),
+                QuantityDTO.LengthUnit.FEET.getMeasurementType());
+
+        assertTrue(controller.performComparison(yards, feet));
+    }
+
+    // ================= WEIGHT COMPARISON =================
+
+    @Test
+    public void weightKilogramEqualsGrams() {
+
+        QuantityDTO kg = new QuantityDTO(
+                1.0,
+                QuantityDTO.WeightUnit.KILOGRAM.getUnitName(),
+                QuantityDTO.WeightUnit.KILOGRAM.getMeasurementType());
+
+        QuantityDTO gram = new QuantityDTO(
+                1000.0,
+                QuantityDTO.WeightUnit.GRAM.getUnitName(),
+                QuantityDTO.WeightUnit.GRAM.getMeasurementType());
+
+        assertTrue(controller.performComparison(kg, gram));
+    }
+
+    // ================= LENGTH CONVERSION =================
+
+    @Test
+    public void convertFeetToInches() {
+
+        QuantityDTO feet = new QuantityDTO(
+                2.0,
+                QuantityDTO.LengthUnit.FEET.getUnitName(),
+                QuantityDTO.LengthUnit.FEET.getMeasurementType());
+
+        QuantityDTO inches = new QuantityDTO(
+                0,
+                QuantityDTO.LengthUnit.INCHES.getUnitName(),
+                QuantityDTO.LengthUnit.INCHES.getMeasurementType());
+
+        QuantityDTO result = controller.performConversion(feet, inches);
+
+        assertEquals(24.0, result.getValue());
     }
 
     @Test
-    void testTemperatureEquality_NegativeForty(){
-        assertTrue(
-                new Quantity<>(-40.0, TemperatureUnit.CELSIUS)
-                        .equals(new Quantity<>(-40.0, TemperatureUnit.FAHRENHEIT))
-        );
+    public void convertYardsToInches() {
+
+        QuantityDTO yards = new QuantityDTO(
+                1.0,
+                QuantityDTO.LengthUnit.YARDS.getUnitName(),
+                QuantityDTO.LengthUnit.YARDS.getMeasurementType());
+
+        QuantityDTO inches = new QuantityDTO(
+                0,
+                QuantityDTO.LengthUnit.INCHES.getUnitName(),
+                QuantityDTO.LengthUnit.INCHES.getMeasurementType());
+
+        QuantityDTO result = controller.performConversion(yards, inches);
+
+        assertEquals(36.0, result.getValue());
+    }
+
+    // ================= WEIGHT CONVERSION =================
+
+    @Test
+    public void convertKilogramsToGrams() {
+
+        QuantityDTO kg = new QuantityDTO(
+                2.0,
+                QuantityDTO.WeightUnit.KILOGRAM.getUnitName(),
+                QuantityDTO.WeightUnit.KILOGRAM.getMeasurementType());
+
+        QuantityDTO gram = new QuantityDTO(
+                0,
+                QuantityDTO.WeightUnit.GRAM.getUnitName(),
+                QuantityDTO.WeightUnit.GRAM.getMeasurementType());
+
+        QuantityDTO result = controller.performConversion(kg, gram);
+
+        assertEquals(2000.0, result.getValue());
+    }
+
+    // ================= ADDITION =================
+
+    @Test
+    public void addLengthFeetAndInches() {
+
+        QuantityDTO feet = new QuantityDTO(
+                1.0,
+                QuantityDTO.LengthUnit.FEET.getUnitName(),
+                QuantityDTO.LengthUnit.FEET.getMeasurementType());
+
+        QuantityDTO inches = new QuantityDTO(
+                6.0,
+                QuantityDTO.LengthUnit.INCHES.getUnitName(),
+                QuantityDTO.LengthUnit.INCHES.getMeasurementType());
+
+        QuantityDTO result = controller.performAddition(feet, inches);
+
+        assertEquals(1.5, result.getValue());
     }
 
     @Test
-    void testTemperatureEquality_ReflexiveProperty(){
-        Quantity<TemperatureUnit> t =
-                new Quantity<>(50.0, TemperatureUnit.CELSIUS);
+    public void addWeightKilogramsAndGrams() {
 
-        assertTrue(t.equals(t));
+        QuantityDTO kg = new QuantityDTO(
+                1.0,
+                QuantityDTO.WeightUnit.KILOGRAM.getUnitName(),
+                QuantityDTO.WeightUnit.KILOGRAM.getMeasurementType());
+
+        QuantityDTO gram = new QuantityDTO(
+                500.0,
+                QuantityDTO.WeightUnit.GRAM.getUnitName(),
+                QuantityDTO.WeightUnit.GRAM.getMeasurementType());
+
+        QuantityDTO result = controller.performAddition(kg, gram);
+
+        assertEquals(1.5, result.getValue());
+    }
+
+    // ================= SUBTRACTION =================
+
+    @Test
+    public void subtractWeightsSameUnit() {
+
+        QuantityDTO w1 = new QuantityDTO(
+                5.0,
+                QuantityDTO.WeightUnit.KILOGRAM.getUnitName(),
+                QuantityDTO.WeightUnit.KILOGRAM.getMeasurementType());
+
+        QuantityDTO w2 = new QuantityDTO(
+                2.0,
+                QuantityDTO.WeightUnit.KILOGRAM.getUnitName(),
+                QuantityDTO.WeightUnit.KILOGRAM.getMeasurementType());
+
+        QuantityDTO result = controller.performSubtraction(w1, w2);
+
+        assertEquals(3.0, result.getValue());
     }
 
     @Test
-    void testTemperatureEquality_SymmetricProperty(){
+    public void subtractVolumesSameUnit() {
 
-        Quantity<TemperatureUnit> a =
-                new Quantity<>(0.0, TemperatureUnit.CELSIUS);
+        QuantityDTO v1 = new QuantityDTO(
+                5.0,
+                QuantityDTO.VolumeUnit.LITRE.getUnitName(),
+                QuantityDTO.VolumeUnit.LITRE.getMeasurementType());
 
-        Quantity<TemperatureUnit> b =
-                new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT);
+        QuantityDTO v2 = new QuantityDTO(
+                2.0,
+                QuantityDTO.VolumeUnit.LITRE.getUnitName(),
+                QuantityDTO.VolumeUnit.LITRE.getMeasurementType());
 
-        assertTrue(a.equals(b));
-        assertTrue(b.equals(a));
-    }
-    @Test
-    void testTemperatureInequality_DifferentValues() {
+        QuantityDTO result = controller.performSubtraction(v1, v2);
 
-        assertFalse(
-                new Quantity<>(50.0, TemperatureUnit.CELSIUS)
-                        .equals(new Quantity<>(100.0, TemperatureUnit.CELSIUS))
-        );
-    }
-    // ================= TEMPERATURE CONVERSION =================
-
-    @Test
-    void testConversion_CelsiusToFahrenheit() {
-
-        Quantity<TemperatureUnit> result =
-                new Quantity<>(100.0, TemperatureUnit.CELSIUS)
-                        .convertTo(TemperatureUnit.FAHRENHEIT);
-
-        assertEquals(212.0, result.getValue(), EPS);
+        assertEquals(3.0, result.getValue());
     }
 
+    // ================= DIVISION =================
+
     @Test
-    void testConversion_FahrenheitToCelsius() {
+    public void divideWeightsSameUnit() {
 
-        Quantity<TemperatureUnit> result =
-                new Quantity<>(32.0, TemperatureUnit.FAHRENHEIT)
-                        .convertTo(TemperatureUnit.CELSIUS);
+        QuantityDTO w1 = new QuantityDTO(
+                10.0,
+                QuantityDTO.WeightUnit.KILOGRAM.getUnitName(),
+                QuantityDTO.WeightUnit.KILOGRAM.getMeasurementType());
 
-        assertEquals(0.0, result.getValue(), EPS);
+        QuantityDTO w2 = new QuantityDTO(
+                5.0,
+                QuantityDTO.WeightUnit.KILOGRAM.getUnitName(),
+                QuantityDTO.WeightUnit.KILOGRAM.getMeasurementType());
+
+        double result = controller.performDivision(w1, w2);
+
+        assertEquals(2.0, result);
     }
 
     @Test
-    void testConversion_RoundTrip() {
+    public void divideVolumesSameUnit() {
 
-        Quantity<TemperatureUnit> original =
-                new Quantity<>(25.0, TemperatureUnit.CELSIUS);
+        QuantityDTO v1 = new QuantityDTO(
+                10.0,
+                QuantityDTO.VolumeUnit.LITRE.getUnitName(),
+                QuantityDTO.VolumeUnit.LITRE.getMeasurementType());
 
-        Quantity<TemperatureUnit> back =
-                original.convertTo(TemperatureUnit.FAHRENHEIT)
-                        .convertTo(TemperatureUnit.CELSIUS);
+        QuantityDTO v2 = new QuantityDTO(
+                5.0,
+                QuantityDTO.VolumeUnit.LITRE.getUnitName(),
+                QuantityDTO.VolumeUnit.LITRE.getMeasurementType());
 
-        assertEquals(original.getValue(), back.getValue(), EPS);
+        double result = controller.performDivision(v1, v2);
+
+        assertEquals(2.0, result);
+    }
+
+    // ================= TEMPERATURE =================
+
+    @Test
+    public void testTemperatureComparison() {
+
+        QuantityDTO celsius = new QuantityDTO(
+                25.0,
+                QuantityDTO.TemperatureUnit.CELSIUS.getUnitName(),
+                QuantityDTO.TemperatureUnit.CELSIUS.getMeasurementType());
+
+        QuantityDTO fahrenheit = new QuantityDTO(
+                77.0,
+                QuantityDTO.TemperatureUnit.FAHRENHEIT.getUnitName(),
+                QuantityDTO.TemperatureUnit.FAHRENHEIT.getMeasurementType());
+
+        assertTrue(controller.performComparison(celsius, fahrenheit));
     }
 
     @Test
-    void testConversion_NegativeTemperature() {
+    public void testTemperatureConversion() {
 
-        Quantity<TemperatureUnit> result =
-                new Quantity<>(-40.0, TemperatureUnit.CELSIUS)
-                        .convertTo(TemperatureUnit.FAHRENHEIT);
+        QuantityDTO celsius = new QuantityDTO(
+                100.0,
+                QuantityDTO.TemperatureUnit.CELSIUS.getUnitName(),
+                QuantityDTO.TemperatureUnit.CELSIUS.getMeasurementType());
 
-        assertEquals(-40.0, result.getValue(), EPS);
+        QuantityDTO fahrenheit = new QuantityDTO(
+                0,
+                QuantityDTO.TemperatureUnit.FAHRENHEIT.getUnitName(),
+                QuantityDTO.TemperatureUnit.FAHRENHEIT.getMeasurementType());
+
+        QuantityDTO result = controller.performConversion(celsius, fahrenheit);
+
+        assertEquals(212.0, result.getValue());
     }
 
     @Test
-    void testConversion_LargeTemperature() {
+    public void testTemperatureUnsupportedAddition() {
 
-        Quantity<TemperatureUnit> result =
-                new Quantity<>(1000.0, TemperatureUnit.CELSIUS)
-                        .convertTo(TemperatureUnit.FAHRENHEIT);
+        QuantityDTO celsius = new QuantityDTO(
+                25.0,
+                QuantityDTO.TemperatureUnit.CELSIUS.getUnitName(),
+                QuantityDTO.TemperatureUnit.CELSIUS.getMeasurementType());
 
-        assertEquals(1832.0, result.getValue(), EPS);
-    }
-
-    @Test
-    void testConversion_SameUnit() {
-
-        Quantity<TemperatureUnit> result =
-                new Quantity<>(25.0, TemperatureUnit.CELSIUS)
-                        .convertTo(TemperatureUnit.CELSIUS);
-
-        assertEquals(25.0, result.getValue(), EPS);
-    }
-
-    // ================= UNSUPPORTED OPERATIONS =================
-
-    @Test
-    void testTemperatureUnsupported_Add() {
+        QuantityDTO fahrenheit = new QuantityDTO(
+                77.0,
+                QuantityDTO.TemperatureUnit.FAHRENHEIT.getUnitName(),
+                QuantityDTO.TemperatureUnit.FAHRENHEIT.getMeasurementType());
 
         assertThrows(
-                UnsupportedOperationException.class,
-                () -> new Quantity<>(100.0, TemperatureUnit.CELSIUS)
-                        .add(new Quantity<>(50.0, TemperatureUnit.CELSIUS))
-        );
+                QuantityMeasurementException.class,
+                () -> controller.performAddition(celsius, fahrenheit));
+    }
+
+    // ================= CROSS CATEGORY =================
+
+    @Test
+    public void preventCrossTypeComparison() {
+
+        QuantityDTO length = new QuantityDTO(
+                1.0,
+                QuantityDTO.LengthUnit.FEET.getUnitName(),
+                QuantityDTO.LengthUnit.FEET.getMeasurementType());
+
+        QuantityDTO weight = new QuantityDTO(
+                1.0,
+                QuantityDTO.WeightUnit.KILOGRAM.getUnitName(),
+                QuantityDTO.WeightUnit.KILOGRAM.getMeasurementType());
+
+        assertFalse(controller.performComparison(length, weight));
     }
 
     @Test
-    void testTemperatureUnsupported_Subtract() {
+    public void preventCrossTypeAddition() {
+
+        QuantityDTO length = new QuantityDTO(
+                1.0,
+                QuantityDTO.LengthUnit.FEET.getUnitName(),
+                QuantityDTO.LengthUnit.FEET.getMeasurementType());
+
+        QuantityDTO weight = new QuantityDTO(
+                1.0,
+                QuantityDTO.WeightUnit.KILOGRAM.getUnitName(),
+                QuantityDTO.WeightUnit.KILOGRAM.getMeasurementType());
 
         assertThrows(
-                UnsupportedOperationException.class,
-                () -> new Quantity<>(100.0, TemperatureUnit.CELSIUS)
-                        .subtract(new Quantity<>(50.0, TemperatureUnit.CELSIUS))
-        );
-    }
-
-    @Test
-    void testTemperatureUnsupported_Divide(){
-
-        assertThrows(
-                UnsupportedOperationException.class,
-                () -> new Quantity<>(100.0, TemperatureUnit.CELSIUS)
-                        .divide(new Quantity<>(50.0, TemperatureUnit.CELSIUS))
-        );
-    }
-
-    @Test
-    void testTemperatureUnsupported_AddDifferentUnits() {
-
-        assertThrows(
-                UnsupportedOperationException.class,
-                () -> new Quantity<>(100.0, TemperatureUnit.CELSIUS)
-                        .add(new Quantity<>(122.0, TemperatureUnit.FAHRENHEIT))
-        );
-    }
-
-    // ================= CROSS CATEGORY TESTS =================
-
-    @Test
-    void testTemperatureVsLengthComparison(){
-
-        assertFalse(
-                new Quantity<>(100.0, TemperatureUnit.CELSIUS)
-                        .equals(new Quantity<>(100.0, LengthUnit.FEET))
-        );
-    }
-    @Test
-    void testTemperatureVsWeightComparison() {
-
-        assertFalse(
-                new Quantity<>(50.0, TemperatureUnit.CELSIUS)
-                        .equals(new Quantity<>(50.0, WeightUnit.KILOGRAM))
-        );
-    }
-
-    @Test
-    void testTemperatureVsVolumeComparison() {
-
-        assertFalse(
-                new Quantity<>(25.0, TemperatureUnit.CELSIUS)
-                        .equals(new Quantity<>(25.0, VolumeUnit.LITRE))
-        );
-    }
-
-    // ================= OPERATION SUPPORT METHODS =================
-
-    @Test
-    void testTemperatureUnitSupportsArithmeticFalse() {
-
-        assertFalse(TemperatureUnit.CELSIUS.supportsArithmetic());
-    }
-
-    @Test
-    void testLengthUnitSupportsArithmeticTrue() {
-
-        assertTrue(LengthUnit.FEET.supportsArithmetic());
-    }
-
-    @Test
-    void testWeightUnitSupportsArithmeticTrue() {
-
-        assertTrue(WeightUnit.KILOGRAM.supportsArithmetic());
-    }
-
-    @Test
-    void testVolumeUnitSupportsArithmeticTrue() {
-
-        assertTrue(VolumeUnit.LITRE.supportsArithmetic());
-    }
-
-    // ================= EDGE CASES =================
-
-    @Test
-    void testTemperatureAbsoluteZero() {
-
-        Quantity<TemperatureUnit> result =
-                new Quantity<>(-273.15, TemperatureUnit.CELSIUS)
-                        .convertTo(TemperatureUnit.FAHRENHEIT);
-
-        assertEquals(-459.67, result.getValue(), EPS);
-    }
-
-    @Test
-    void testTemperaturePrecision() {
-
-        Quantity<TemperatureUnit> result =
-                new Quantity<>(50.0, TemperatureUnit.CELSIUS)
-                        .convertTo(TemperatureUnit.FAHRENHEIT);
-
-        assertEquals(122.0, result.getValue(), EPS);
-    }
-
-    @Test
-    void testTemperatureSmallDifference() {
-
-        Quantity<TemperatureUnit> a =
-                new Quantity<>(0.0001, TemperatureUnit.CELSIUS);
-
-        Quantity<TemperatureUnit> b =
-                new Quantity<>(32.00018, TemperatureUnit.FAHRENHEIT);
-
-        assertTrue(a.equals(b));
-    }
-
-    // ================= VALIDATION =================
-
-    @Test
-    void testConstructor_NullUnit() {
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Quantity<>(100.0, null)
-        );
-    }
-    @Test
-    void testConstructor_InvalidValue(){
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new Quantity<>(Double.NaN, TemperatureUnit.CELSIUS)
-        );
-    }
-    @Test
-    void testEquals_NullComparison(){
-
-        Quantity<TemperatureUnit> t =
-                new Quantity<>(100.0, TemperatureUnit.CELSIUS);
-
-        assertFalse(t.equals(null));
+                QuantityMeasurementException.class,
+                () -> controller.performAddition(length, weight));
     }
 
 }
