@@ -29,6 +29,26 @@ public class QuantityMeasurementEntity implements Serializable {
         return error != null;
     }
 
+    public String getOperation() {
+        return operation;
+    }
+
+    public String getOperand1() {
+        return operand1;
+    }
+
+    public String getOperand2() {
+        return operand2;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public String getError() {
+        return error;
+    }
+
     @Override
     public String toString() {
         if (hasError()) {
