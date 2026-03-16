@@ -5,30 +5,48 @@ import com.example.QuantityMeasurementApp.dto.*;
 import com.example.QuantityMeasurementApp.exception.*;
 import com.example.QuantityMeasurementApp.repository.*;
 import com.example.QuantityMeasurementApp.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QuantityMeasurementApp {
 
+    private static final Logger logger = LoggerFactory.getLogger(QuantityMeasurementApp.class);
     private static QuantityMeasurementApp instance;
-
     public final QuantityMeasurementController controller;
+    private IQuantityMeasurementRepository repository;
 
     private QuantityMeasurementApp() {
+        try {
+            // Get repository type from configuration (cache or database)
+            String repositoryType = ApplicationConfig.getInstance().getRepositoryType();
+            
+            if ("database".equalsIgnoreCase(repositoryType)) {
+                logger.info("Using MySQL Database Repository");
+                QuantityMeasurementDatabaseRepository dbRepository = 
+                        new QuantityMeasurementDatabaseRepository();
+                dbRepository.initialize();  // Initialize connection pool and create schema
+                this.repository = dbRepository;
+            } else {
+                logger.info("Using In-Memory Cache Repository");
+                this.repository = QuantityMeasurementCacheRepository.getInstance();
+            }
+            
+            QuantityMeasurementServiceImpl service =
+                    new QuantityMeasurementServiceImpl(repository);
 
-        QuantityMeasurementCacheRepository repository =
-                QuantityMeasurementCacheRepository.getInstance();
-
-        QuantityMeasurementServiceImpl service =
-                new QuantityMeasurementServiceImpl(repository);
-
-        controller = new QuantityMeasurementController(service);
+            controller = new QuantityMeasurementController(service);
+            logger.info("Application initialized successfully");
+            
+        } catch (Exception e) {
+            logger.error("Failed to initialize application", e);
+            throw new RuntimeException("Application initialization failed", e);
+        }
     }
 
     public static QuantityMeasurementApp getInstance() {
-
         if (instance == null) {
             instance = new QuantityMeasurementApp();
         }
-
         return instance;
     }
 
@@ -126,6 +144,27 @@ public class QuantityMeasurementApp {
         } catch (Exception e) {
             System.err.println("✗ Error during execution: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            // Close database resources if using database repository
+            try {
+                String repositoryType = ApplicationConfig.getInstance().getRepositoryType();
+                if ("database".equalsIgnoreCase(repositoryType)) {
+                    logger.info("Closing database connections...");
+                    System.out.println("\nClosing database connections...");
+                }
+            } catch (Exception e) {
+                logger.error("Error during cleanup", e);
+            }
+        }
+    }
+
+    /**
+     * Release all database resources
+     */
+    public void closeResources() {
+        if (repository instanceof QuantityMeasurementDatabaseRepository) {
+            ((QuantityMeasurementDatabaseRepository) repository).releaseResources();
+            logger.info("Database resources released");
         }
     }
 }

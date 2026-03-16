@@ -1,9 +1,15 @@
 package com.example.QuantityMeasurementApp;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import com.example.QuantityMeasurementApp.exception.*;
 import com.example.QuantityMeasurementApp.controller.QuantityMeasurementController;
 import com.example.QuantityMeasurementApp.dto.QuantityDTO;
+import com.example.QuantityMeasurementApp.repository.QuantityMeasurementDatabaseRepository;
+import com.example.QuantityMeasurementApp.entity.QuantityMeasurementEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -310,5 +316,108 @@ public class QuantityMeasurementAppTest {
         QuantityDTO negative = new QuantityDTO(-1.0, "FEET", "LENGTH");
         QuantityDTO positive = new QuantityDTO(1.0, "FEET", "LENGTH");
         assertFalse(controller.performComparison(negative, positive));
+    }
+
+    // ================= UC16: DATABASE REPOSITORY TESTS =================
+
+    @Test
+    @DisplayName("UC16: Save entity to database repository")
+    public void testDatabaseRepositorySaveEntity() throws DatabaseException {
+        QuantityMeasurementDatabaseRepository repository = new QuantityMeasurementDatabaseRepository();
+        repository.initialize();
+        
+        QuantityMeasurementEntity entity = new QuantityMeasurementEntity(
+                "COMPARE", "1.0 FEET", "12.0 INCH", "EQUAL");
+        repository.save(entity);
+        
+        assertNotNull(entity);
+        assertEquals("COMPARE", entity.getOperation());
+        
+        repository.releaseResources();
+    }
+
+    @Test
+    @DisplayName("UC16: Retrieve all entities from database")
+    public void testDatabaseRepositoryFindAll() throws DatabaseException {
+        QuantityMeasurementDatabaseRepository repository = new QuantityMeasurementDatabaseRepository();
+        repository.initialize();
+        
+        QuantityMeasurementEntity entity1 = new QuantityMeasurementEntity(
+                "COMPARE", "1.0 FEET", "12.0 INCH", "EQUAL");
+        QuantityMeasurementEntity entity2 = new QuantityMeasurementEntity(
+                "CONVERT", "2.0 FEET", "0 INCH", "24.0 INCH");
+        
+        repository.save(entity1);
+        repository.save(entity2);
+        
+        java.util.List<QuantityMeasurementEntity> all = repository.findAll();
+        assertNotNull(all);
+        assertTrue(all.size() >= 2);
+        
+        repository.releaseResources();
+    }
+
+    @Test
+    @DisplayName("UC16: Get total count from database")
+    public void testDatabaseRepositoryTotalCount() throws DatabaseException {
+        QuantityMeasurementDatabaseRepository repository = new QuantityMeasurementDatabaseRepository();
+        repository.initialize();
+        
+        QuantityMeasurementEntity entity = new QuantityMeasurementEntity(
+                "ADD", "1.0 FEET", "6.0 INCH", "1.5 FEET");
+        repository.save(entity);
+        
+        long count = repository.getTotalCount();
+        assertTrue(count >= 1);
+        
+        repository.releaseResources();
+    }
+
+    @Test
+    @DisplayName("UC16: Connection pool statistics")
+    public void testConnectionPoolStatistics() throws DatabaseException {
+        QuantityMeasurementDatabaseRepository repository = new QuantityMeasurementDatabaseRepository();
+        repository.initialize();
+        
+        String stats = repository.getPoolStatistics();
+        assertNotNull(stats);
+        assertTrue(stats.contains("Available") || stats.contains("ConnectionPool"));
+        
+        repository.releaseResources();
+    }
+
+    @Test
+    @DisplayName("UC16: Delete all entities from database")
+    public void testDatabaseRepositoryDeleteAll() throws DatabaseException {
+        QuantityMeasurementDatabaseRepository repository = new QuantityMeasurementDatabaseRepository();
+        repository.initialize();
+        
+        QuantityMeasurementEntity entity = new QuantityMeasurementEntity(
+                "DIVIDE", "10.0 KILOGRAM", "5.0 KILOGRAM", "2.0");
+        repository.save(entity);
+        
+        long countBefore = repository.getTotalCount();
+        repository.deleteAll();
+        long countAfter = repository.getTotalCount();
+        
+        assertEquals(0, countAfter);
+        
+        repository.releaseResources();
+    }
+
+    @Test
+    @DisplayName("UC16: Save entity with error message")
+    public void testDatabaseRepositorySaveEntityWithError() throws DatabaseException {
+        QuantityMeasurementDatabaseRepository repository = new QuantityMeasurementDatabaseRepository();
+        repository.initialize();
+        
+        QuantityMeasurementEntity entity = new QuantityMeasurementEntity(
+                "INVALID", "Cannot compare LENGTH with WEIGHT");
+        repository.save(entity);
+        
+        assertNotNull(entity);
+        assertEquals("INVALID", entity.getOperation());
+        
+        repository.releaseResources();
     }
 }

@@ -1,6 +1,7 @@
 package com.example.QuantityMeasurementApp.repository;
 
 import com.example.QuantityMeasurementApp.entity.QuantityMeasurementEntity;
+import com.example.QuantityMeasurementApp.exception.DatabaseException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,13 +26,13 @@ public class QuantityMeasurementCacheRepository
     }
 
     @Override
-    public void save(QuantityMeasurementEntity entity) {
+    public void save(QuantityMeasurementEntity entity) throws DatabaseException {
         cache.add(entity);
         saveToDisk(entity);
     }
 
     @Override
-    public List<QuantityMeasurementEntity> findAll() {
+    public List<QuantityMeasurementEntity> findAll() throws DatabaseException {
         return new ArrayList<>(cache);
     }
 
