@@ -91,7 +91,6 @@ public class QuantityMeasurementEntity {
                 ", operand1='" + operand1 + '\'' +
                 ", operand2='" + operand2 + '\'' +
                 ", result='" + result + '\'' +
-                ", createdAt=" + createdAt +
-                '}';
+                ", createdAt=" + createdAt + '}';
     }
 }
