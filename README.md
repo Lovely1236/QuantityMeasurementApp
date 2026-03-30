@@ -52,6 +52,7 @@ It provides REST APIs for performing various **quantity operations** along with 
 ---
 
 ## 📂 Project Structure
+```text
 src/main/java/com/example/quantity_measurement_app
 │
 ├── config # Configuration classes
@@ -65,7 +66,7 @@ src/main/java/com/example/quantity_measurement_app
 ├── service # Business logic layer
 ├── unit # Unit enums & measurement logic
 └── Application.java # Main application class
-
+```
 
 ---
 
