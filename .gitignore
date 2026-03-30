@@ -33,3 +33,8 @@ build/
 .vscode/
 
 application-dev.properties
+
+logs
+.gitattributes
+mvnw
+mvnw.cmd
