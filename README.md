@@ -55,17 +55,17 @@ It provides REST APIs for performing various **quantity operations** along with 
 ```text
 src/main/java/com/example/quantity_measurement_app
 │
-├── config # Configuration classes
-├── controller # REST controllers
-├── dto # Request/Response DTOs
-├── entity # JPA entities
-├── exception # Custom exceptions & handlers
-├── model # Domain models
-├── repository # Database repositories
-├── security # JWT, OAuth2, Spring Security config
-├── service # Business logic layer
-├── unit # Unit enums & measurement logic
-└── Application.java # Main application class
+├── config         # Configuration classes
+├── controller     # REST controllers
+├── dto            # Request/Response DTOs
+├── entity         # JPA entities
+├── exception      # Custom exceptions & handlers
+├── model          # Domain models
+├── repository     # Database repositories
+├── security       # JWT, OAuth2, Spring Security config
+├── service        # Business logic layer
+├── unit           # Unit enums & measurement logic
+└── Application.java   # Main application class
 ```
 
 ---
