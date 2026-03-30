@@ -27,26 +27,26 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                                         Authentication authentication)
             throws IOException, ServletException {
 
-        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
-        String email = oauthUser.getAttribute("email");
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
+        String email = oAuth2User.getAttribute("email");
 
-        // 🔥 SAVE USER IF NOT EXISTS
+        final String finalName = oAuth2User.getAttribute("name") != null
+                ? oAuth2User.getAttribute("name")
+                : email;
+
         User user = repository.findByEmail(email)
                 .orElseGet(() -> {
                     User newUser = new User();
                     newUser.setEmail(email);
-                    newUser.setUsername(email);
-                    newUser.setRole("USER");
+                    newUser.setName(finalName);
+                    newUser.setRole("ROLE_USER");
                     return repository.save(newUser);
                 });
 
-        // 🔥 GENERATE JWT
         String token = provider.generateToken(user.getEmail());
 
-        // 🔥 RETURN TOKEN
-        response.setContentType("application/json");
-        response.getWriter().write("{\"token\":\"" + token + "\"}");
-
+        String redirectUrl = "http://localhost:5173/oauth-success?token=" + token;
+        response.sendRedirect(redirectUrl);
     }
 }

@@ -10,12 +10,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
+    private String name;     // ✅ store full name
     private String email;
     private String password;
     private String role;
-
-    public void setName(String name) {
-        this.username = name;
-    }
 }
+
